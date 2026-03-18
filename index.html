@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chronos Atlas — Navigate Human History</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- Site CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════
+       HEADER
+  ════════════════════════════════════════════════════ -->
+  <header id="site-header">
+    <div class="header-left">
+      <div class="logo-mark">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="#F59E0B" stroke-width="1.5"/>
+          <path d="M12 2 Q9 7 9 12 Q9 17 12 22" stroke="#F59E0B" stroke-width="1.2" fill="none"/>
+          <path d="M12 2 Q15 7 15 12 Q15 17 12 22" stroke="#F59E0B" stroke-width="1.2" fill="none"/>
+          <line x1="2.5" y1="12" x2="21.5" y2="12" stroke="#F59E0B" stroke-width="1.2"/>
+          <line x1="4" y1="7.5" x2="20" y2="7.5" stroke="#F59E0B" stroke-width="0.8" opacity="0.5"/>
+          <line x1="4" y1="16.5" x2="20" y2="16.5" stroke="#F59E0B" stroke-width="0.8" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-title">CHRONOS ATLAS</span>
+        <span class="logo-sub">Navigate Human Civilization</span>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <div class="header-year-display">
+        <span id="header-year-label">1900 CE</span>
+        <span id="header-era-label">Modern Era</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- Search bar -->
+      <div class="search-wrap">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input
+          type="text"
+          id="search-input"
+          class="search-input"
+          placeholder="Search events, places…"
+          autocomplete="off"
+        />
+        <button id="search-clear" class="search-clear-btn" style="display:none" title="Clear">✕</button>
+      </div>
+      <!-- Search results dropdown -->
+      <div id="search-results" class="search-results-dropdown"></div>
+
+      <button id="sidebar-toggle" class="header-btn" title="Filters">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+          <line x1="11" y1="18" x2="13" y2="18"/>
+        </svg>
+        Filters
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════
+       MAIN LAYOUT
+  ════════════════════════════════════════════════════ -->
+  <div id="main-layout">
+
+    <!-- ── SIDEBAR ──────────────────────────────────── -->
+    <aside id="sidebar" class="sidebar open">
+      <div class="sidebar-section">
+        <h3 class="sidebar-section-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+            <line x1="11" y1="18" x2="13" y2="18"/>
+          </svg>
+          Event Categories
+        </h3>
+        <div class="category-filters" id="category-filters">
+          <button class="cat-btn active" data-category="all">
+            <span class="cat-dot" style="background:#94A3B8"></span>
+            All Events
+            <span class="cat-count" id="count-all">0</span>
+          </button>
+          <button class="cat-btn active" data-category="war">
+            <span class="cat-dot" style="background:#EF4444"></span>
+            Wars &amp; Conflicts
+            <span class="cat-count" id="count-war">0</span>
+          </button>
+          <button class="cat-btn active" data-category="science">
+            <span class="cat-dot" style="background:#06B6D4"></span>
+            Science &amp; Discovery
+            <span class="cat-count" id="count-science">0</span>
+          </button>
+          <button class="cat-btn active" data-category="disaster">
+            <span class="cat-dot" style="background:#F97316"></span>
+            Natural Disasters
+            <span class="cat-count" id="count-disaster">0</span>
+          </button>
+          <button class="cat-btn active" data-category="politics">
+            <span class="cat-dot" style="background:#8B5CF6"></span>
+            Politics &amp; Empires
+            <span class="cat-count" id="count-politics">0</span>
+          </button>
+          <button class="cat-btn active" data-category="culture">
+            <span class="cat-dot" style="background:#EC4899"></span>
+            Culture &amp; Arts
+            <span class="cat-count" id="count-culture">0</span>
+          </button>
+          <button class="cat-btn active" data-category="exploration">
+            <span class="cat-dot" style="background:#84CC16"></span>
+            Exploration
+            <span class="cat-count" id="count-exploration">0</span>
+          </button>
+          <button class="cat-btn active" data-category="religion">
+            <span class="cat-dot" style="background:#F59E0B"></span>
+            Religion &amp; Faith
+            <span class="cat-count" id="count-religion">0</span>
+          </button>
+          <button class="cat-btn active" data-category="economy">
+            <span class="cat-dot" style="background:#14B8A6"></span>
+            Economy &amp; Trade
+            <span class="cat-count" id="count-economy">0</span>
+          </button>
+          <button class="cat-btn active" data-category="pandemic">
+            <span class="cat-dot" style="background:#10B981"></span>
+            Pandemics
+            <span class="cat-count" id="count-pandemic">0</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-section-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Region
+        </h3>
+        <div class="region-filters" id="region-filters">
+          <button class="region-btn active" data-region="all">All Regions</button>
+          <button class="region-btn active" data-region="Europe">Europe</button>
+          <button class="region-btn active" data-region="Asia">Asia</button>
+          <button class="region-btn active" data-region="Middle East">Middle East</button>
+          <button class="region-btn active" data-region="Africa">Africa</button>
+          <button class="region-btn active" data-region="Americas">Americas</button>
+          <button class="region-btn active" data-region="Oceania">Oceania</button>
+          <button class="region-btn active" data-region="Global">Global</button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-section-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          Impact Level
+        </h3>
+        <div class="impact-filters" id="impact-filters">
+          <button class="impact-btn active" data-impact="all">All</button>
+          <button class="impact-btn active" data-impact="HIGH">
+            <span class="impact-dot" style="background:#EF4444"></span> High
+          </button>
+          <button class="impact-btn active" data-impact="MEDIUM">
+            <span class="impact-dot" style="background:#F59E0B"></span> Medium
+          </button>
+          <button class="impact-btn active" data-impact="LOW">
+            <span class="impact-dot" style="background:#6B7280"></span> Low
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-stats">
+        <div class="stat-box">
+          <span class="stat-val" id="stat-visible">0</span>
+          <span class="stat-lbl">visible</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-val" id="stat-total">0</span>
+          <span class="stat-lbl">total</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-val" id="stat-year-range">5000+</span>
+          <span class="stat-lbl">years</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── MAP ──────────────────────────────────────── -->
+    <div id="map-container">
+      <div id="map"></div>
+
+      <!-- Zoom controls are built in; we add our own reset -->
+      <button id="reset-view-btn" class="map-control-btn" title="Reset View">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+      </button>
+
+      <!-- Map legend -->
+      <div class="map-legend" id="map-legend">
+        <div class="legend-title">Legend</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#EF4444"></span>War</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#06B6D4"></span>Science</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#F97316"></span>Disaster</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#8B5CF6"></span>Politics</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#EC4899"></span>Culture</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#84CC16"></span>Exploration</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#F59E0B"></span>Religion</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#14B8A6"></span>Economy</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#10B981"></span>Pandemic</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       EVENT DETAIL POPUP (MODAL)
+  ════════════════════════════════════════════════════ -->
+  <div id="event-modal-backdrop" class="modal-backdrop hidden">
+    <div id="event-modal" class="event-modal">
+      <div id="modal-color-bar" class="modal-color-bar"></div>
+      <div class="modal-body">
+        <button id="modal-close" class="modal-close-btn" title="Close">✕</button>
+        <div class="modal-meta">
+          <span id="modal-year" class="modal-year"></span>
+          <span id="modal-category" class="modal-category-badge"></span>
+          <span id="modal-region" class="modal-region"></span>
+        </div>
+        <h2 id="modal-title" class="modal-title"></h2>
+        <p id="modal-description" class="modal-description"></p>
+        <div class="modal-footer">
+          <div id="modal-impact" class="modal-impact-badge"></div>
+          <div id="modal-tags" class="modal-tags"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       TIMELINE (BOTTOM)
+  ════════════════════════════════════════════════════ -->
+  <div id="timeline-container">
+    <!-- Density bar (canvas) -->
+    <canvas id="density-canvas" class="density-canvas"></canvas>
+
+    <!-- Year labels row -->
+    <div class="timeline-era-labels" id="era-labels"></div>
+
+    <!-- Slider row -->
+    <div class="timeline-slider-row">
+      <button class="tl-step-btn" id="tl-back" title="Step back 10 years">‹‹</button>
+
+      <div class="timeline-track-wrap" id="timeline-track-wrap">
+        <div class="timeline-track" id="timeline-track">
+          <div class="timeline-fill" id="timeline-fill"></div>
+          <div class="timeline-thumb" id="timeline-thumb">
+            <div class="thumb-diamond"></div>
+          </div>
+        </div>
+        <!-- Tick marks -->
+        <div class="timeline-ticks" id="timeline-ticks"></div>
+      </div>
+
+      <button class="tl-step-btn" id="tl-forward" title="Step forward 10 years">››</button>
+    </div>
+
+    <!-- Quick-jump eras -->
+    <div class="era-jump-row">
+      <button class="era-jump-btn" data-year="-3000">3000 BCE</button>
+      <button class="era-jump-btn" data-year="-1000">1000 BCE</button>
+      <button class="era-jump-btn" data-year="0">Year 0</button>
+      <button class="era-jump-btn" data-year="500">500 CE</button>
+      <button class="era-jump-btn" data-year="1000">1000 CE</button>
+      <button class="era-jump-btn" data-year="1500">1500 CE</button>
+      <button class="era-jump-btn" data-year="1800">1800 CE</button>
+      <button class="era-jump-btn" data-year="1900">1900 CE</button>
+      <button class="era-jump-btn" data-year="1950">1950 CE</button>
+      <button class="era-jump-btn" data-year="2000">2000 CE</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       TOAST NOTIFICATION
+  ════════════════════════════════════════════════════ -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="historicalEvents.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
